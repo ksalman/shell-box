@@ -29,39 +29,56 @@
             state: latest
       # block level
       become: true
-      package:
-        name: tmux
-        state: absent
 
-    - name: Install tmux build dependencies
-      become: true
-      package:
-        name:
-          - bison
-          - automake
-          - build-essential
-          - clang
-          - libevent-dev
-          - git
-          - pkg-config
-          - libncurses5-dev
+    - name: get tmux version
+      shell: /usr/local/bin/tmux -V | cut -d" " -f2
+      register: tmux_ver
+      changed_when: false
 
-    # Check for existing install of tmux 3.1 before cloning and compiling
-    - name: Clone tmux repo
-      git:
-        repo: https://github.com/tmux/tmux.git
-        dest: ~/tmux-repo
-        version: 3.1
+    - name: Install tmux from source
+      # Tmux block level
+      block:
+        - name: Uninstall tmux if it exists
+          become: true
+          package:
+            name: tmux
+            state: absent
 
-    # https://gist.github.com/ksalman/bfe8c222943f03fea30626c99019b51c
-    # Not idempotent
-    - name: Compile and install tmux
-      shell: |
-        cd ~/tmux-repo
-        bash autogen.sh
-        ./configure
-        make -C . -j $(nproc)
-        sudo make install
+        - name: Install tmux build dependencies
+          become: true
+          package:
+            name:
+              - bison
+              - automake
+              - build-essential
+              - clang
+              - libevent-dev
+              - git
+              - pkg-config
+              - libncurses5-dev
+
+        - name: Clone tmux repo
+          git:
+            repo: https://github.com/tmux/tmux.git
+            dest: ~/tmux-repo
+            version: 3.2
+
+        # https://gist.github.com/ksalman/bfe8c222943f03fea30626c99019b51c
+        - name: Compile tmux
+          shell: |
+            cd ~/tmux-repo
+            bash autogen.sh
+            ./configure
+            make -C . -j $(nproc)
+
+        - name: Install tmux
+          become: true
+          shell: make install
+          args:
+            # paramaterize username
+            chdir: /home/vagrant/tmux-repo
+      # Tmux block level
+      when: tmux_ver.stdout != "3.2"
 
     - name: Install pyenv via git
       git:
