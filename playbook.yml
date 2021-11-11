@@ -13,11 +13,21 @@
       package:
         name:
           - build-essential
-          - git
           - stow
           - ncdu
 
-    - name: Uninstall tmux if it exists
+    - name: Install new version of git
+      block:
+        - name: Add git-core repo
+          apt_repository:
+            repo: ppa:git-core/ppa
+            state: present
+
+        - name: Install git
+          package:
+            name: git
+            state: latest
+      # block level
       become: true
       package:
         name: tmux
