@@ -1,0 +1,134 @@
+- hosts: all
+
+  pre_tasks:
+    - name: Update apt cache if needed
+      become: true
+      apt:
+        update_cache: true
+        cache_valid_time: 3600
+
+  tasks:
+    - name: Install necessary packages
+      become: true
+      package:
+        name:
+          - build-essential
+          - git
+          - stow
+          - ncdu
+
+    - name: Uninstall tmux if it exists
+      become: true
+      package:
+        name: tmux
+        state: absent
+
+    - name: Install tmux build dependencies
+      become: true
+      package:
+        name:
+          - bison
+          - automake
+          - build-essential
+          - clang
+          - libevent-dev
+          - git
+          - pkg-config
+          - libncurses5-dev
+
+    # Check for existing install of tmux 3.1 before cloning and compiling
+    - name: Clone tmux repo
+      git:
+        repo: https://github.com/tmux/tmux.git
+        dest: ~/tmux-repo
+        version: 3.1
+
+    # https://gist.github.com/ksalman/bfe8c222943f03fea30626c99019b51c
+    # Not idempotent
+    - name: Compile and install tmux
+      shell: |
+        cd ~/tmux-repo
+        bash autogen.sh
+        ./configure
+        make -C . -j $(nproc)
+        sudo make install
+
+    - name: Install pyenv via git
+      git:
+        repo: https://github.com/pyenv/pyenv.git
+        dest: ~/.pyenv
+
+    - name: compile pyenv dynamic Bash extension
+      shell: |
+        cd ~/.pyenv
+        src/configure
+        make -C src
+      args:
+        creates: ~/.pyenv/libexec/pyenv-realpath.dylib
+
+    - name: Setup Node.js repo
+      shell: |
+        curl -fsSL https://deb.nodesource.com/setup_17.x | sudo -E bash -
+      args:
+        creates: /usr/share/keyrings/nodesource.gpg
+
+    - name: Install Node.js
+      become: true
+      package:
+        name: nodejs
+
+    - name: Install pyright Node.js package
+      npm:
+        name: pyright
+        path: ~/node_modules
+      # Set this for work proxy. Ideally put it in include_vars
+      # environment:
+      #   NODE_EXTRA_CA_CERTS: /usr/share/ca-certificates/foo/bar.crt
+
+    - name: Download Neovim
+      get_url:
+        url: https://github.com/neovim/neovim/releases/latest/download/nvim.appimage
+        dest: ~/nvim.appimage
+
+    - name: Set Neovim executable bit
+      file:
+        path: ~/nvim.appimage
+        mode: 0744
+
+    - name: Install vim-plug
+      shell: |
+        sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs \
+        https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+      args:
+        creates: ~/.local/share/nvim/site/autoload/plug.vim
+
+    - name: Download dotfiles
+      git:
+        repo: https://github.com/ksalman/dotfiles
+        dest: ~/dotfiles
+
+    # This is not idempotent; stow will run every time
+    - name: Deploy various dotfiles using GNU Stow
+      command: stow "{{ item['package'] }}"
+      args:
+        chdir: ~/dotfiles
+      with_items:
+        - package: nvim
+        - package: tmux
+
+    - name: Install vim packages
+      # https://github.com/junegunn/vim-plug/issues/225#issuecomment-458710986
+      # This is problematic due to, I think, tree-sitter installing parsers on first run
+      # Need to test further by disabling auto-install of parsers
+      command: ~/nvim.appimage -E -s -u ~/.config/nvim/init.vim +PlugInstall +qall
+      ignore_errors: yes
+      args:
+        creates: ~/.vim/plugged
+
+    - name: Add neovim aliases to bashrc
+      blockinfile:
+        path: ~/.bashrc
+        block: |
+          alias nvim="PATH=$PATH:~/node_modules/.bin ~/nvim.appimage"
+          alias vi=nvim
+          alias vim=nvim
