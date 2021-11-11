@@ -5,7 +5,7 @@ A Vagrantfile is included to test or modify the playbook further
 * We need to install ansible first
 * The user needs to be able to run sudo without password
 ```
-sudo apt update && apt install -y ansible
+sudo apt update && sudo apt install -y ansible
 ansible-playbook -i inventory playbook.yml
 ```
 
