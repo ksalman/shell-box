@@ -74,9 +74,17 @@
         - name: Install tmux
           become: true
           shell: make install
+          register: tmux_install
           args:
             # paramaterize username
             chdir: /home/vagrant/tmux-repo
+
+        - name: Delete tmux repo if install is successful
+          file:
+            path: ~/tmux-repo
+            state: absent
+          when: tmux_install.rc == 0
+
       # Tmux block level
       when: tmux_ver.stdout != "3.2"
 
