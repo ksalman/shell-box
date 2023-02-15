@@ -14,3 +14,13 @@ If doing this at work where a proxy is being used, you need to use an image that
 ```
 vagrant up
 ```
+
+## TODO
+* install docker-ce
+* install linuxbrew
+* install fd
+* install ripgrep
+* install bat
+* install jq
+* install jless
+* install klog

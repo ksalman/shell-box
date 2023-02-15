@@ -76,8 +76,8 @@
           shell: make install
           register: tmux_install
           args:
-            # paramaterize username
-            chdir: /home/vagrant/tmux-repo
+            #TODO paramaterize username
+            chdir: /home/kashif.salman/tmux-repo
 
         - name: Delete tmux repo if install is successful
           file:
@@ -102,6 +102,7 @@
         creates: ~/.pyenv/libexec/pyenv-realpath.dylib
 
     - name: Setup Node.js repo
+      #TODO use get_url instead
       shell: |
         curl -fsSL https://deb.nodesource.com/setup_17.x | sudo -E bash -
       args:
@@ -149,7 +150,8 @@
         chdir: ~/dotfiles
       with_items:
         - package: nvim
-        - package: tmux
+          #TODO cd ~/dotfiles && git log -1 8253474c7346f7d1133fa743c466f3f24ff28349 (unify tmux configs)
+        - package: tmux-remote
 
     - name: Install vim packages
       # https://github.com/junegunn/vim-plug/issues/225#issuecomment-458710986
