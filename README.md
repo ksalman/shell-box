@@ -24,3 +24,7 @@ vagrant up
 * install jq
 * install jless
 * install klog
+* install oh-my-zsh
+* install spaceship-prompt via oh-my-zsh
+* install zsh-syntax-highlighting via oh-my-zsh
+* install pyenv-virtualenv
