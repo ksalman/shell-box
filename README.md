@@ -28,3 +28,4 @@ vagrant up
 * install spaceship-prompt via oh-my-zsh
 * install zsh-syntax-highlighting via oh-my-zsh
 * install pyenv-virtualenv
+* install terraform, packer, vagrant, virtualbox
