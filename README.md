@@ -18,6 +18,8 @@ vagrant up
 ## TODO
 * install docker-ce
 * install linuxbrew
+* install direnv
+* install htop
 * install fd
 * install ripgrep
 * install bat
@@ -27,5 +29,7 @@ vagrant up
 * install oh-my-zsh
 * install spaceship-prompt via oh-my-zsh
 * install zsh-syntax-highlighting via oh-my-zsh
+* install (python build dependencies) build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev curl libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
 * install pyenv-virtualenv
 * install terraform, packer, vagrant, virtualbox
+* install terraform-ls
