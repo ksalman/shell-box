@@ -33,3 +33,4 @@ vagrant up
 * install pyenv-virtualenv
 * install terraform, packer, vagrant, virtualbox
 * install terraform-ls
+* set locale to en_US.UTF-8 (dpkg-reconfigure locales)
