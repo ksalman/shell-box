@@ -34,3 +34,4 @@ vagrant up
 * install terraform, packer, vagrant, virtualbox
 * install terraform-ls
 * set locale to en_US.UTF-8 (dpkg-reconfigure locales)
+* install traceroute, ipcalc, sshpass
